@@ -8,7 +8,7 @@ const jwt = require("jsonwebtoken")
 const sendmail = require("sendmail")()
 
 /////////////// Variables ///////////////
-const key = "mySuperStrongPassKey123"
+const key = "mySuperStrongPassKey123" // <- JWT Key
 
 /////////////// Declare ///////////////
 const app = express()
@@ -18,6 +18,7 @@ app.use(express.static('public'))
 const storage = multer.diskStorage({
     destination: './uploads/', filename: (req, file, callback) => {
         callback( null, Date.now()+ "-" + file.originalname)
+        console.log("Here upload")
     }
 })
 const upload = multer( { storage: storage } );
@@ -68,7 +69,7 @@ app.post("/user/login?", (req, res) => {
                 if (error) {
                     res.sendStatus(401)
                 } else {
-                    var token = jwt.sign({ email: response[0].email }, key);
+                    var token = jwt.sign({ id: response[0].id, email: response[0].email }, key);
                     res.json(token)
                 }
             })
@@ -95,34 +96,39 @@ app.post("/user/register?", (req, res) => {
 })
 
 /////////////// Index ///////////////
-app.get("/posts?", (req, res) => {
+app.get("/:table?", (req, res) => {
     db.query("SELECT * FROM posts", (error, response) => {
-        if (error) {
-            res.sendStatus(500)
-        } else {
-            res.json(response)
-        }
-    })      
+      if (error) {
+        res.sendStatus(500)
+      }
+      else if (response[0] != null) {
+        res.json(response)
+      }
+      else {
+        res.sendStatus(404)
+      }
+    })
 })
 
 /////////////// View ///////////////
-app.get("/posts/:id?", (req, res) => {
-    db.query("SELECT * FROM posts WHERE id = ?", req.params.id, (error, response) => {
+app.get("/:table/:id?", (req, res) => {
+    db.query("SELECT * FROM "+ req.params.table +" WHERE id = ?", req.params.id, (error, response) => {
         if (error) {
-            res.sendStatus(500)
-        } else {
-            if (response[0] != null) {
-                res.json(response)
-            } else {
-                res.sendStatus(404)
-            }
+          res.sendStatus(500)
+        }
+        else if (response[0] != null) {
+          res.json(response)
+        }
+        else {
+          res.sendStatus(404)
         }
     })
 })
 
 /////////////// Insert ///////////////
-app.post("/posts?", protected, (req, res) => {
-    db.query("INSERT INTO posts SET ?", req.body, (error, response) => {
+app.post("/:table?", protected, (req, res) => {
+    req.body.user_id = req.user.id // Important Stops User from being changed.
+    db.query("INSERT INTO "+ req.params.table +" SET ?", req.body, (error, response) => {
         if (error) {
             res.sendStatus(400)
         } else {
@@ -131,36 +137,56 @@ app.post("/posts?", protected, (req, res) => {
     })
 })
 
+
 /////////////// Update ///////////////
-app.put("/posts/:id?", protected, (req, res) => {
-    db.query("UPDATE posts SET ? WHERE id = ?", [req.body, req.params.id], (error, response) => {
+app.put("/:table/:id?", protected, (req, res) => {
+    req.body.user_id = req.user.id // Important Stops User from being changed.
+    db.query("UPDATE "+ req.params.table +" SET ? WHERE user_id = ? AND id = ?", [req.body, req.user.id, req.params.id], (error, response) => {
         if (error) {
             res.sendStatus(400)
-        } else {
+            console.log("Debug: " + error.sqlMessage)
+        }
+        else if (response.affectedRows == 0) {
+            res.sendStatus(404)
+            console.log("Debug: Record Not Found or Auth Issue")
+        }
+        else {
             res.sendStatus(200)
+            console.log("Log: Record Updated")
         }
     })
 })
+
 
 /////////////// Delete ///////////////
-app.delete("/posts/:id?", protected, (req, res) => {
-    db.query("DELETE FROM posts WHERE id = ?", req.params.id, (error, response) => {
-        if (error) {
-            res.sendStatus(400)
-        } else {
-            res.sendStatus(200)
-        }
+app.delete("/:table/:id?", protected, (req, res) => {
+    db.query("DELETE FROM "+ req.params.table +" WHERE user_id = ? AND id = ?", [req.user.id, req.params.id], (error, response) => {
+      if (error) {
+          res.sendStatus(400)
+          console.log("Debug: " + error.sqlMessage)
+      }
+      else if (response.affectedRows == 0) {
+          res.sendStatus(404)
+          console.log("Debug: Record Not Found or Auth Issue")
+      }
+      else {
+          res.sendStatus(200)
+          console.log("Log: Record Deleted")
+      }
     })
 })
 
+
 /////////////// File Upload (Muliple (12)) ///////////////
-app.post('/upload', upload.array('files', 12), (req, res) => {
+app.post('/api/upload', upload.array('files', 12), (req, res) => {
   res.sendStatus(201)
+  console.log("Log: Upload File")
 })
+
 
 /////////////// Email ///////////////
 app.post('/mail', protected, (req, res) => {
-    if (req.body != null){      
+    if (req.body != null){
         sendmail({
             from: req.body.from,
             to: req.body.to,
@@ -176,6 +202,16 @@ app.post('/mail', protected, (req, res) => {
     } else {
         res.sendStatus(400)
     }
+})
+
+
+/////////////// Connection ///////////////
+app.get('/connection', (req, res) => {
+    res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate')
+    res.header('Expires', '-1')
+    res.header('Pragma', 'no-cache')
+    res.sendStatus(200)
+    console.log("Log: Connection Tested Live")
 })
 
 

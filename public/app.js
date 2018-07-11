@@ -1,8 +1,23 @@
+/*var data = {title: 'example', body: 'Hey Body'};
+
 var posts = localforage.createInstance({
   name: "posts"
 })
 
- 
+var sync = localforage.createInstance({
+  name: "sync"
+})
+
+
+function postsync(data) {
+  sync.getItem('post').then((result) => {
+    result[result.length] = data
+    sync.setItem("post", result)
+  })
+}
+postsync(data)
+
+
 function getData() {
     fetch("http://localhost:3000/posts/")
     .then(function(response) {
@@ -23,7 +38,7 @@ function getData() {
     })
 }
 
-var value = {title: 'example', body: 'Hey Body'};
+
 
 function addData(key, value) {
     posts.setItem(key, value)
@@ -40,4 +55,25 @@ function addData(key, value) {
     .then(response => console.log('Success:', response))
 }
 
-addData(12, value)
+//addData(12, value)
+*/
+
+function connectionCheck(callback) {
+  fetch("http://localhost:3000/connectiona/")
+    .then(function(response) {
+        if (!response.ok) {
+            throw Error(response.statusText);
+        }
+        return response;
+    }).then(function(response) {
+        callback("ok")
+    }).catch(function(error) {
+        callback("error")
+    });
+}
+
+connectionCheck((response) => {
+  if (response == "ok") {
+    console.log("connected")
+  }
+})
