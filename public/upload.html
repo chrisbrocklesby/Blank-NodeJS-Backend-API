@@ -1,11 +1,34 @@
 <html>
-<header>
+  <header>
+    <script>
+      function upload() {
+        var file = document.getElementById('file')
+        var fileData = new FormData
 
-<body>
+        for (var num = 0; num < file.files.length; num++) {
+          fileData.append("file", file.files[num])
+        }
 
-      <form method="post" action="http://localhost:3000/api/upload" enctype="multipart/form-data">
-           <input type="file" name="files[]" multiple>
-           <input type="submit" value="Upload">
-       </form>
-</body>
+        fetch("/api/upload", {
+          method: 'POST',
+          body: fileData,
+          headers:{
+            'Authorization': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwiZW1haWwiOiJ0ZXN0QHRlc3QuY29tIiwiaWF0IjoxNTMxMzA1MDMwfQ.9WvaiDKO0alp1PWxvN4k8PZ938qBxnqBGGY4f5eNdo0'
+          }
+        })
+      }
+    </script>
+  </header>
+  <body>
+
+    <input type="file" name="file" id="file" onchange="upload()" multiple>
+
+    <!--
+    <form method="post" action="/api/upload" enctype="multipart/form-data">
+      <input type="file" name="file" multiple>
+      <input type="submit" value="Upload">
+    </form>
+    -->
+
+  </body>
 </html>

@@ -16,12 +16,15 @@ app.use(express.static('public'))
 
 ////////////////////// Upload ////////////////
 const storage = multer.diskStorage({
-    destination: './uploads/', filename: (req, file, callback) => {
-        callback( null, Date.now()+ "-" + file.originalname)
-        console.log("Here upload")
+    destination: './public/uploads/', filename: (req, file, callback) => {
+        var newfilename = req.user.id + "-" + Date.now() + "-" + file.originalname.toLowerCase().replace(/\s/g, '-')
+        callback( null, newfilename)
     }
 })
-const upload = multer( { storage: storage } );
+const upload = multer( {
+  storage: storage,
+  limits: {fileSize: 10000000, files: 10} // <- 10mb (10000000) max upload with 10 files
+}).array('file', 10)
 
 /////////////// Middleware ///////////////
 app.use(bodyParser.json())
@@ -178,9 +181,26 @@ app.delete("/:table/:id?", protected, (req, res) => {
 
 
 /////////////// File Upload (Muliple (12)) ///////////////
-app.post('/api/upload', upload.array('files', 12), (req, res) => {
-  res.sendStatus(201)
-  console.log("Log: Upload File")
+app.post('/api/upload', protected, (req, res) => {
+  upload(req, res, (error) => {
+    if (error) {
+      res.status(400).json(error)
+      console.log("Debug: " + error)
+      return
+    }
+    else if (req.files) {
+      var json = {status: "ok", filenames: []}
+      for (var num = 0; num < req.files.length; num++) {
+        json.filenames.push(req.files[num].filename)
+      }
+      res.status(201).json(json)
+      console.log("Log: Upload Performed")
+    }
+    else {
+      res.sendStatus(400)
+      console.log("Debug: Upload was not successful")
+    }
+  })
 })
 
 

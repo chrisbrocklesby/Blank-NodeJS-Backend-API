@@ -1,5 +1,5 @@
 {
-  "name": "dblocalapi",
+  "name": "Starter App with API",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
-  "author": "",
+  "author": "Chris Brocklesby",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^2.0.1",
