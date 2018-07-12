@@ -1,7 +1,7 @@
 {
-  "name": "Starter App with API",
+  "name": "Starter API App",
   "version": "1.0.0",
-  "description": "",
+  "description": "Starter App with MySQL DB / Upload / Mail API",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

@@ -63,7 +63,7 @@ function protected(req, res, next) {
 }
 
 /////////////// New User ///////////////
-app.post("/user/login?", (req, res) => {
+app.post("/api/user/login?", (req, res) => {
     db.query("SELECT * FROM users WHERE email = ?", req.body.email, (error, response) => {
         if (error) {
             res.sendStatus(400)
@@ -81,7 +81,7 @@ app.post("/user/login?", (req, res) => {
 })
 
 /////////////// Register User ///////////////
-app.post("/user/register?", (req, res) => {
+app.post("/api/user/register?", (req, res) => {
     bcrypt.hash(req.body.password, 10, (error, hashPassword) => {
         if (error) {
             res.sendStatus(400)
@@ -99,37 +99,41 @@ app.post("/user/register?", (req, res) => {
 })
 
 /////////////// Index ///////////////
-app.get("/:table?", (req, res) => {
-    db.query("SELECT * FROM posts", (error, response) => {
+app.get("/api/:table?", protected, (req, res) => {
+    db.query("SELECT * FROM "+ req.params.table +"", (error, response) => {
       if (error) {
         res.sendStatus(500)
+        console.log("Debug: " + error.sqlMessage)
       }
       else if (response[0] != null) {
         res.json(response)
       }
       else {
         res.sendStatus(404)
+        console.log("Debug: Record Not Found or Auth Issue")
       }
     })
 })
 
 /////////////// View ///////////////
-app.get("/:table/:id?", (req, res) => {
+app.get("/api/:table/:id?", protected, (req, res) => {
     db.query("SELECT * FROM "+ req.params.table +" WHERE id = ?", req.params.id, (error, response) => {
         if (error) {
           res.sendStatus(500)
+          console.log("Debug: " + error.sqlMessage)
         }
         else if (response[0] != null) {
           res.json(response)
         }
         else {
           res.sendStatus(404)
+          console.log("Debug: Record Not Found or Auth Issue")
         }
     })
 })
 
 /////////////// Insert ///////////////
-app.post("/:table?", protected, (req, res) => {
+app.post("/api/:table?", protected, (req, res) => {
     req.body.user_id = req.user.id // Important Stops User from being changed.
     db.query("INSERT INTO "+ req.params.table +" SET ?", req.body, (error, response) => {
         if (error) {
@@ -142,7 +146,7 @@ app.post("/:table?", protected, (req, res) => {
 
 
 /////////////// Update ///////////////
-app.put("/:table/:id?", protected, (req, res) => {
+app.put("/api/:table/:id?", protected, (req, res) => {
     req.body.user_id = req.user.id // Important Stops User from being changed.
     db.query("UPDATE "+ req.params.table +" SET ? WHERE user_id = ? AND id = ?", [req.body, req.user.id, req.params.id], (error, response) => {
         if (error) {
@@ -162,7 +166,7 @@ app.put("/:table/:id?", protected, (req, res) => {
 
 
 /////////////// Delete ///////////////
-app.delete("/:table/:id?", protected, (req, res) => {
+app.delete("/api/:table/:id?", protected, (req, res) => {
     db.query("DELETE FROM "+ req.params.table +" WHERE user_id = ? AND id = ?", [req.user.id, req.params.id], (error, response) => {
       if (error) {
           res.sendStatus(400)
@@ -205,7 +209,7 @@ app.post('/api/upload', protected, (req, res) => {
 
 
 /////////////// Email ///////////////
-app.post('/mail', protected, (req, res) => {
+app.post('/api/mail', protected, (req, res) => {
     if (req.body != null){
         sendmail({
             from: req.body.from,
@@ -226,7 +230,7 @@ app.post('/mail', protected, (req, res) => {
 
 
 /////////////// Connection ///////////////
-app.get('/connection', (req, res) => {
+app.get('/api/connection', (req, res) => {
     res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate')
     res.header('Expires', '-1')
     res.header('Pragma', 'no-cache')
