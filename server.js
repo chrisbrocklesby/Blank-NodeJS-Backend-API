@@ -7,6 +7,8 @@ const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const sendmail = require("sendmail")()
 
+
+
 /////////////// Variables ///////////////
 const key = "mySuperStrongPassKey123" // <- JWT Key
 
@@ -53,10 +55,13 @@ db.connect((error) => {
 /////////////// Protected Area Function Middleware (Token) ///////////////
 function protected(req, res, next) {
     jwt.verify(req.headers.authorization, key, (error, decoded) => {
-        if (error) {
+        if (error || decoded == undefined) {
             res.sendStatus(401)
-        } else {
-            req.user = decoded //<- Pass Token User Data
+            console.log("Debug: authorization failed")
+        }
+        else {
+            req.user = decoded // <- Pass Token User Data
+            console.log("Log: User (" + decoded.id + ") authorization successful." )
             return next()
         }
     })
@@ -147,7 +152,8 @@ app.post("/api/:table?", protected, (req, res) => {
 
 /////////////// Update ///////////////
 app.put("/api/:table/:id?", protected, (req, res) => {
-    req.body.user_id = req.user.id // Important Stops User from being changed.
+    req.body.user_id = req.user.id // Important Stops User from changing owner of record.
+    console.log("User: " + req.user.id)
     db.query("UPDATE "+ req.params.table +" SET ? WHERE user_id = ? AND id = ?", [req.body, req.user.id, req.params.id], (error, response) => {
         if (error) {
             res.sendStatus(400)
