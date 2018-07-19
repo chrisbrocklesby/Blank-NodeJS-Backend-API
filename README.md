@@ -25,7 +25,9 @@ npm install
 ```
 node server
 ```
+### Note:
+```
+Create and setup 'public/uploads' folder permissions correctly to allow upload.
+```
 
 ### Go create something great...
-
-Note: Create and setup 'public/uploads' folder permissions correctly to allow upload.
