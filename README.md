@@ -7,7 +7,7 @@ It uses MySQL as the backend database, has a built in token authication system, 
 
 ## To install:
 
-### Edit DB settings in 'server.js' file...
+### Edit MySQL connection settings in 'server.js' file...
 ```
 const db = mysql.createConnection({
   host     : "localhost",
@@ -15,6 +15,18 @@ const db = mysql.createConnection({
   password : "password",
   database : "apiDB"
 })
+```
+
+### Create User table with your MySQL DB...
+```
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `email` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email_UNIQUE` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
+
 ```
 
 ### Setup NPM modules...
