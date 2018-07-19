@@ -17,7 +17,7 @@ const db = mysql.createConnection({
 })
 ```
 
-### Create User table with your MySQL DB...
+### Create 'users' table with your MySQL DB...
 ```
 CREATE TABLE `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
