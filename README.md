@@ -41,22 +41,25 @@ node server
 
 ### API URL...
 ```
-// User URL's
+/////////////// User URL's ////////////////
 POST: http://localhost:3000/api/user/register
 POST: http://localhost:3000/api/user/Login // <- Returns Auth Token
 
-// API Table URL's (Replace <Table> and <ID>)
+/////////////// API Table URL's (Replace <Table> and <ID>) ///////////////
 GET: (Index) http://localhost:3000/api/<TABLE>/
 GET: (By ID) http://localhost:3000/api/<TABLE>/<ID>/
 POST: (Insert) http://localhost:3000/api/<TABLE>/
 PUT: (Update) http://localhost:3000/api/<TABLE>/<ID>/
 DELETE: (By ID) http://localhost:3000/api/<TABLE>/<ID>/
 
-// API Upload file
+/////////////// API Upload file ///////////////
 POST: (Insert) http://localhost:3000/api/upload/
 
-// API Email
+/////////////// API Email ///////////////
 POST: (Insert) http://localhost:3000/api/mail/
+
+//// IMPORTANT NOTE: ////
+Don't forget to send 'Authorization' header with token for protected url's !...
 ```
 
 ### Note:
