@@ -5,8 +5,8 @@ const bodyParser = require("body-parser")
 const multer = require("multer")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
-const sendmail = require("sendmail")()
-const colors = require("colors")
+const sendmail = require("sendmail")() // <- Send Mail (Testing Only)
+const colors = require("colors") // <- Used for Debugging
 
 
 ////////////////////////////// Variables //////////////////////////////
