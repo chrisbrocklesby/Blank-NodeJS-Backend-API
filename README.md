@@ -42,8 +42,8 @@ node server
 ### API URL...
 ```
 /////////////// User URL's ////////////////
-POST: http://localhost:3000/api/user/register
-POST: http://localhost:3000/api/user/Login // <- Returns Auth Token
+POST: http://localhost:3000/api/user/register/
+POST: http://localhost:3000/api/user/login/ // <- Returns Auth Token
 
 /////////////// API Table URL's (Replace <Table> and <ID>) ///////////////
 GET: (Index) http://localhost:3000/api/<TABLE>/
